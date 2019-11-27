@@ -1,0 +1,22 @@
+html, body, #root, .LandingPage, .button {
+  height: 100%;
+}
+
+.LandingPage {
+    display: flex;
+    flex-direction: row;
+}
+
+.button {
+  margin: 0 auto;
+  width: 100%;
+  display: table;
+  text-align: center;
+  vertical-align: middle;
+}
+
+.button p {
+  display: table-cell;
+  align-content: center;
+  vertical-align: middle;
+}

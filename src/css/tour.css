@@ -1,0 +1,4 @@
+.Tour {
+  display: flex;
+  flex-direction: column;
+}
