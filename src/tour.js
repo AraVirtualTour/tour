@@ -1,6 +1,8 @@
 import React from 'react';
-import Button from 'react-bootstrap/Button';
 import locationContentLoader from './content';
+import Button from 'react-bootstrap/Button';
+import { animateScroll as scroll } from 'react-scroll';
+ 
 
 import './css/tour.css';
 
@@ -58,7 +60,6 @@ class Audio extends React.Component {
   }
 }
 
-
 class Tour extends React.Component {
   constructor(props) {
     super(props);
@@ -66,7 +67,7 @@ class Tour extends React.Component {
     this.state = {
       location: '',
       locationContent: []
-    }
+    };
   }
 
   componentDidMount() {
@@ -95,28 +96,31 @@ class Tour extends React.Component {
     let result = [];
 
     if (!this.state.location) {
+      result.push(<a key='0' href='/tour?location=dummylocation'>dummylocation</a>);
       return result;
     }
 
     for (let index in this.state.locationContent) {
       let file = this.state.locationContent[index];
+      let id = file['id'];
       let source = `./${this.state.location}/${file['src']}`;
+      let title = file['title'];
 
       if (file['src'].includes('jpg')) {
-        result.push(file['src'].includes('_pano') ? <Panorama key={file['id']} id={file['id']} src={content(source)} alt={file['title']} /> :
-                                                    <Image key={file['id']} id={file['id']} src={content(source)} alt={file['title']} />);
+        result.push(file['src'].includes('_pano') ? <Panorama key={id} id={id} src={content(source)} alt={title} /> :
+                                                    <Image key={id} id={id} src={content(source)} alt={title} />);
       }
 
       if (file['src'].includes('txt')) {
-        result.push(<Text key={file['id']} id={file['id']} text={file['title']} />);
+        result.push(<Text key={id} id={id} text={title} />);
       }
       
       if (file['src'].includes('url')) {
-        result.push(<Link key={file['id']} id={file['id']} src={source} text={file['title']} />);
+        result.push(<Link key={id} id={id} src={source} text={title} />);
       }
 
       if (file['src'].includes('wav')) {
-        result.push(<Audio key={file['id']} id={file['id']} src={source} type='audio/wav' />);
+        result.push(<Audio key={id} id={id} src={source} type='audio/wav' />);
       }
     }
 
@@ -124,12 +128,13 @@ class Tour extends React.Component {
   }
   
   render () {
-    console.log(this.state.locationContent);
     return (
       <div className='Tour'>
         {this.renderContent()}
+        <Button name='bottom' variant='outline-secondary' className='button' onClick={() => window.scrollTo(0, 0)}>Back to Top</Button>
       </div>
     );
   }
 }
+
 export default Tour;
