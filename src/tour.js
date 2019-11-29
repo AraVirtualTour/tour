@@ -1,20 +1,30 @@
 import React from 'react';
 import locationContentLoader from './content';
 import Button from 'react-bootstrap/Button';
-import { animateScroll as scroll } from 'react-scroll';
- 
 
 import './css/tour.css';
 
-const content = require.context('./content/', true);
-
 
 class Text extends React.Component {
+  constructor (props) {
+    super(props);
+
+    this.state = {
+      text: ''
+    }
+  }
+  
+  componentDidMount () {
+    fetch(this.props.src)
+      .then(response => response.text())
+      .then((response) => this.setState({text: response}))
+  }
+
   render () {
     return (
       <div id={this.props.id}>
         <h1>{this.props.title}</h1>
-        <p>{this.props.text}</p>
+        <p>{this.state.text}</p>
       </div>
     );
   }
@@ -41,10 +51,26 @@ class Panorama extends React.Component {
 }
 
 class Link extends React.Component {
+  constructor (props) {
+    super(props);
+
+    this.state = {
+      url: ''
+    }
+  }
+
+  componentDidMount () {
+    fetch(this.props.src)
+      .then(response => response.text())
+      .then((response) => this.setState({url: response}))
+
+    console.log(this.state.url)
+  }
+
   render () {
     return (
       <div id={this.props.id}>
-        <a href={this.props.src} target='_blank' rel="noopener noreferrer">{this.props.text}</a>
+        <a href={this.state.url} target='_blank' rel="noopener noreferrer">{this.props.text}</a>
       </div>
     );
   }
@@ -65,6 +91,7 @@ class Tour extends React.Component {
     super(props);
 
     this.state = {
+      host: 'http://localhost',
       location: '',
       locationContent: []
     };
@@ -103,20 +130,20 @@ class Tour extends React.Component {
     for (let index in this.state.locationContent) {
       let file = this.state.locationContent[index];
       let id = file['id'];
-      let source = `./${this.state.location}/${file['src']}`;
+      let source = `${this.state.host}:8080/content/${this.state.location}/${file['src']}`;
       let title = file['title'];
 
       if (file['src'].includes('jpg')) {
-        result.push(file['src'].includes('_pano') ? <Panorama key={id} id={id} src={content(source)} alt={title} /> :
-                                                    <Image key={id} id={id} src={content(source)} alt={title} />);
+        result.push(file['src'].includes('_pano') ? <Panorama key={id} id={id} src={source} alt={title} /> :
+                                                    <Image key={id} id={id} src={source} alt={title} />);
       }
 
       if (file['src'].includes('txt')) {
-        result.push(<Text key={id} id={id} text={title} />);
+        result.push(<Text key={id} id={id} title={title} src={source} />);
       }
       
       if (file['src'].includes('url')) {
-        result.push(<Link key={id} id={id} src={source} text={title} />);
+        result.push(<Link key={id} id={id} text={title} src={source} />);
       }
 
       if (file['src'].includes('wav')) {
