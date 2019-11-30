@@ -1,167 +1,104 @@
 import React from 'react';
-import locationContentLoader from './content';
 import Button from 'react-bootstrap/Button';
+import { animateScroll as scroll } from 'react-scroll';
 
 import './css/tour.css';
 
+import { Text, Image, Panorama, Link, Audio } from './components';
 
-class Text extends React.Component {
-  constructor (props) {
-    super(props);
+const host = 'http://localhost';
+const port = '8080';
 
-    this.state = {
-      text: ''
-    }
-  }
-  
-  componentDidMount () {
-    fetch(this.props.src)
-      .then(response => response.text())
-      .then((response) => this.setState({text: response}))
-  }
 
-  render () {
-    return (
-      <div id={this.props.id}>
-        <h1>{this.props.title}</h1>
-        <p>{this.state.text}</p>
-      </div>
-    );
-  }
-}
-
-class Image extends React.Component {
-  render () {
-    return (
-      <div id={this.props.id}>
-        <img src={this.props.src} alt={this.props.alt} />
-      </div>
-    );
-  }
-}
-
-class Panorama extends React.Component {
-  render () {
-    return (
-      <div id={this.props.id}>
-        <img src={this.props.src} alt={this.props.alt} />
-      </div>
-    );
-  }
-}
-
-class Link extends React.Component {
-  constructor (props) {
-    super(props);
-
-    this.state = {
-      url: ''
-    }
-  }
-
-  componentDidMount () {
-    fetch(this.props.src)
-      .then(response => response.text())
-      .then((response) => this.setState({url: response}))
-
-    console.log(this.state.url)
-  }
-
-  render () {
-    return (
-      <div id={this.props.id}>
-        <a href={this.state.url} target='_blank' rel="noopener noreferrer">{this.props.text}</a>
-      </div>
-    );
-  }
-}
-
-class Audio extends React.Component {
-  render () {
-    return (
-      <div id={this.props.id}>
-        <audio src={this.props.src} type={this.props.type} controls />
-      </div>
-    );
-  }
-}
-
-class Tour extends React.Component {
+export default class Tour extends React.Component {
   constructor(props) {
     super(props);
 
     this.state = {
-      host: 'http://localhost',
-      location: '',
-      locationContent: []
+      currentLocation: '',
+      locationContent: [],
+      locations: [],
+      scrollDuration: 0,
+      loaded: false
     };
   }
 
-  componentDidMount() {
-    let location = this.getQueryVariable('location');
-    let locationContent = locationContentLoader();
+  componentDidMount () {
+    this.setState({loaded: true});
 
-    this.setState({location, locationContent});
-  }
+    fetch(`${host}:${port}/content/locations.json`)
+      .then(response => response.text())
+      .then(text => this.setState({locations: JSON.parse(text).locations}));
 
-  getQueryVariable(variableName) {
-    let query = window.location.search.substring(1);
-    let vars = query.split("&");
+    this.setState({currentLocation: window.location.search.substring(1)}, function () {
+      if (this.state.currentLocation) {
+        fetch(`${host}:${port}/content/${this.state.currentLocation}/${this.state.currentLocation}.json`)
+          .then(response => response.text())
+          .then(text => this.setState({locationContent: JSON.parse(text).content}, function () {
+            let time = 0;
 
-    for (let index = 0; index < vars.length; index++) {
-      let pair = vars[index].split("=");
+            for (let file of this.state.locationContent) {
+              time += file.time;
+            }
 
-      if (pair[0] === variableName) {
-        return pair[1];
+            this.setState({scrollDuration: time * 1000});
+          })
+        );
       }
-    }
+    });
 
-    return(false);
+    window.addEventListener('scroll', () => console.log('d'));
   }
 
   renderContent() {
-    let result = [];
+    let renderedContent = [];
 
-    if (!this.state.location) {
-      result.push(<a key='0' href='/tour?location=dummylocation'>dummylocation</a>);
-      return result;
+    if (!this.state.currentLocation) {
+      for (let location of this.state.locations) {
+        renderedContent.push(<a key='0' href={`/tour?${location.name}`}>{location.name}</a>);
+      }
+
+      return renderedContent;
     }
 
-    for (let index in this.state.locationContent) {
-      let file = this.state.locationContent[index];
+    for (let file of this.state.locationContent) {
       let id = file['id'];
-      let source = `${this.state.host}:8080/content/${this.state.location}/${file['src']}`;
+      let source = `${host}:${port}/content/${this.state.currentLocation}/${file['src']}`;
       let title = file['title'];
 
       if (file['src'].includes('jpg')) {
-        result.push(file['src'].includes('_pano') ? <Panorama key={id} id={id} src={source} alt={title} /> :
+        renderedContent.push(file['src'].includes('_pano') ? <Panorama key={id} id={id} src={source} alt={title} /> :
                                                     <Image key={id} id={id} src={source} alt={title} />);
       }
 
       if (file['src'].includes('txt')) {
-        result.push(<Text key={id} id={id} title={title} src={source} />);
+        renderedContent.push(<Text key={id} id={id} title={title} src={source} />);
       }
       
       if (file['src'].includes('url')) {
-        result.push(<Link key={id} id={id} text={title} src={source} />);
+        renderedContent.push(<Link key={id} id={id} text={title} src={source} />);
       }
 
       if (file['src'].includes('wav')) {
-        result.push(<Audio key={id} id={id} src={source} type='audio/wav' />);
+        renderedContent.push(<Audio key={id} id={id} src={source} type='audio/wav' />);
       }
     }
 
-    return result;
+    renderedContent.push(<Button key='backToTop' variant='outline-secondary' className='button' onClick={() => scroll.scrollToTop({duration: 100})}>Back to Top</Button>);
+    
+    return renderedContent;
+  }
+
+  getScrollPosition () {
+
   }
   
   render () {
     return (
       <div className='Tour'>
-        {this.renderContent()}
-        <Button name='bottom' variant='outline-secondary' className='button' onClick={() => window.scrollTo(0, 0)}>Back to Top</Button>
+        {this.state.loaded ? this.renderContent() : <p>Loading...</p>}
+        {scroll.scrollToBottom({duration: this.state.scrollDuration, smooth: 'linear', isDynamic: true})}
       </div>
     );
   }
 }
-
-export default Tour;

@@ -20,6 +20,7 @@ class App extends React.Component {
           <Route path='/tour'>
             <Tour />
           </Route>
+          <Route path='/game' />
           <Route path='/'>
             <LandingPage />
           </Route>

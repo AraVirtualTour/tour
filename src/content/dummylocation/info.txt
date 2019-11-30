@@ -1,6 +1,0 @@
-001="DummyContent1";
-002="Dummy Image 2 Wowee big!";
-003="Intro Text";
-005="Pano";
-008="Mean Recording";
-009="Based Subtitles";
