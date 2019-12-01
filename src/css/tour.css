@@ -3,11 +3,11 @@
   flex-direction: column;
 }
 
+.content {
+  width: 95%;
+}
+
 img {
   max-width:100%; 
   height:auto;
-}
-
-.link {
-  color: blue;
 }

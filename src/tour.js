@@ -3,6 +3,7 @@ import Button from 'react-bootstrap/Button';
 import { animateScroll as scroll } from 'react-scroll';
 
 import './css/tour.css';
+import './css/components.css';
 
 import { Text, Image, Panorama, Link, Audio } from './components';
 
@@ -65,26 +66,27 @@ export default class Tour extends React.Component {
       let id = file['id'];
       let source = `${host}:${port}/content/${this.state.currentLocation}/${file['src']}`;
       let title = file['title'];
+      let isRequired = file['required'];
 
       if (file['src'].includes('jpg')) {
-        renderedContent.push(file['src'].includes('_pano') ? <Panorama key={id} id={id} src={source} alt={title} /> :
-                                                    <Image key={id} id={id} src={source} alt={title} />);
+        renderedContent.push(file['src'].includes('_pano') ? <Panorama key={id} id={id} required={isRequired} src={source} alt={title} /> :
+                                                             <Image key={id} id={id} required={isRequired} src={source} alt={title} />);
       }
 
       if (file['src'].includes('txt')) {
-        renderedContent.push(<Text key={id} id={id} title={title} src={source} />);
+        renderedContent.push(<Text key={id} id={id} required={isRequired} title={title} src={source} />);
       }
       
       if (file['src'].includes('url')) {
-        renderedContent.push(<Link key={id} id={id} text={title} src={source} />);
+        renderedContent.push(<Link key={id} id={id} required={isRequired} text={title} src={source} />);
       }
 
       if (file['src'].includes('wav')) {
-        renderedContent.push(<Audio key={id} id={id} src={source} type='audio/wav' />);
+        renderedContent.push(<Audio key={id} id={id} required={isRequired} src={source} type='audio/wav' />);
       }
     }
 
-    renderedContent.push(<Button key='backToTop' variant='outline-secondary' className='button' onClick={() => scroll.scrollToTop({duration: 100})}>Back to Top</Button>);
+    renderedContent.push();
     
     return renderedContent;
   }
@@ -96,8 +98,11 @@ export default class Tour extends React.Component {
   render () {
     return (
       <div className='Tour'>
-        {this.state.loaded ? this.renderContent() : <p>Loading...</p>}
-        {scroll.scrollToBottom({duration: this.state.scrollDuration, smooth: 'linear', isDynamic: true})}
+        <div className='content'>
+          {this.state.loaded ? this.renderContent() : <p>Loading...</p>}
+          {scroll.scrollToBottom({duration: this.state.scrollDuration, smooth: 'linear', isDynamic: true})}
+        </div>
+        <Button key='backToTop' variant='outline-secondary' className='button' onClick={() => scroll.scrollToTop({duration: 100})}>Back to Top</Button>
       </div>
     );
   }
