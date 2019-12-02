@@ -82,7 +82,7 @@ export default class Tour extends React.Component {
       }
 
       if (file['src'].includes('wav')) {
-        renderedContent.push(<Audio key={id} id={id} required={isRequired} src={source} type='audio/wav' />);
+        renderedContent.push(<Audio key={id} id={id} required={isRequired} title={title} src={source} type='audio/wav' />);
       }
     }
     

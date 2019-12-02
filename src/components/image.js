@@ -11,7 +11,6 @@ export default class Image extends React.Component {
   }
 
   render () {
-    console.log(this.props.title);
     return (
       <div id={this.props.id} className='image requiredPointFlex'>
         <div>

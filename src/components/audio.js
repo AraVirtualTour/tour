@@ -13,7 +13,11 @@ export default class Audio extends React.Component {
   render () {
     return (
       <div id={this.props.id} className='audio requiredPointFlex'>
-        <audio src={this.props.src} type={this.props.type} controls />
+        <div>
+          {this.props.title ? [<h1 key='title'>{this.props.title}</h1>,
+                              <audio key='audio' src={this.props.src} type={this.props.type} controls />] :
+                              <audio src={this.props.src} type={this.props.type} controls />};
+        </div>
         {this.renderRequired()}
       </div>
     );

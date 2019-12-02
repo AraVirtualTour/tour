@@ -14,8 +14,8 @@ export default class Panorama extends React.Component {
     return (
       <div id={this.props.id} className='panorama requiredPointFlex'>
         <div>
-          {this.props.title ? [<h1>{this.props.title}</h1>,
-                              <img src={this.props.src} alt={this.props.alt} />] :
+          {this.props.title ? [<h1 key='title'>{this.props.title}</h1>,
+                              <img key='image' src={this.props.src} alt={this.props.alt} />] :
                               <img src={this.props.src} alt={this.props.alt} />}
         </div>
         {this.renderRequired()}
