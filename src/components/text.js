@@ -28,8 +28,9 @@ export default class Text extends React.Component {
     return (
       <div id={this.props.id} className='text requiredPointFlex'>
         <div>
-          <h1>{this.props.title}</h1>
-          <p>{this.state.text}</p>
+          {this.props.title ? [<h1 key='title'>{this.props.title}</h1>,
+                              <p key='text'>{this.state.text}</p>] :
+                              <p>{this.state.text}</p>}
         </div>
         {this.renderRequired()}
       </div>
