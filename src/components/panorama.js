@@ -6,7 +6,7 @@ import RequiredPoint from './requiredPoint';
 export default class Panorama extends React.Component {
   renderRequired () {
     if (this.props.required) {
-      return <RequiredPoint />;
+      return <RequiredPoint id={this.props.id} />;
     }
   }
 

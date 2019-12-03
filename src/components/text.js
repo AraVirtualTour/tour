@@ -20,7 +20,7 @@ export default class Text extends React.Component {
 
   renderRequired () {
     if (this.props.required) {
-      return <RequiredPoint />;
+      return <RequiredPoint id={this.props.id} />;
     }
   }
 

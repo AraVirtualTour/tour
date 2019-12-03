@@ -1,6 +1,6 @@
 import React from 'react';
 import Button from 'react-bootstrap/Button';
-import { animateScroll as scroll } from 'react-scroll';
+import { Events, animateScroll as scroll } from 'react-scroll';
 
 import './css/tour.css';
 import './css/components.css';
@@ -19,14 +19,13 @@ export default class Tour extends React.Component {
       currentLocation: '',
       locationContent: [],
       locations: [],
-      scrollDuration: 0,
-      loaded: false
+      loadedContent: [],
+      scrollPoints: [],
+      requiredContent: []   
     };
   }
 
   componentDidMount () {
-    this.setState({loaded: true});
-
     fetch(`${backendHost}:${backendPort}/content/locations.json`)
       .then(response => response.text())
       .then(text => this.setState({locations: JSON.parse(text).locations}));
@@ -36,19 +35,42 @@ export default class Tour extends React.Component {
         fetch(`${backendHost}:${backendPort}/content/${this.state.currentLocation}/${this.state.currentLocation}.json`)
           .then(response => response.text())
           .then(text => this.setState({locationContent: JSON.parse(text).content}, function () {
-            let time = 0;
-
+            let requiredContent = [];
+            let scrollPoints = [];
+            
             for (let file of this.state.locationContent) {
-              time += file.time;
+              if (file.required) {
+                requiredContent.push(file);
+              }
             }
 
-            this.setState({scrollDuration: time * 1000});
+            this.setState({requiredContent: requiredContent}, function () {
+              for (let file of this.state.requiredContent) {
+                console.log()
+                console.log(document.getElementById(file.id).clientHeight)
+              }
+            });
+
+            this.renderContent();
           })
         );
       }
     });
 
-    window.addEventListener('scroll', () => console.log('scrolled'));
+    Events.scrollEvent.register('begin',  function (to, element) {
+      console.log('begin', arguments);
+    });
+
+    Events.scrollEvent.register('end', function (to, element) {
+      console.log('end', arguments);
+    });
+
+    window.addEventListener('scroll', () => this.scrollUpdate());
+  }
+
+  componentWillUnmount () {
+    Events.scrollEvent.remove('begin');
+    Events.scrollEvent.remove('end');
   }
 
   renderContent() {
@@ -84,21 +106,31 @@ export default class Tour extends React.Component {
       if (file['src'].includes('wav')) {
         renderedContent.push(<Audio key={id} id={id} required={isRequired} title={title} src={source} type='audio/wav' />);
       }
+
+      if (file['src'.includes('')])
     }
     
-    return renderedContent;
+    this.setState({loadedContent: renderedContent});
   }
 
-  getScrollPosition () {
+  scrollUpdate () {
+    console.log('scrolled');
+  }
 
+  getOffset (element) {
+    let rect = element.getBoundingClientRect();
+
+    return {
+      left: rect.left + window.scrollX,
+      top: rect.top + window.scrollY
+    };
   }
   
   render () {
     return (
       <div className='Tour'>
-        <div className='content'>
-          {this.state.loaded ? this.renderContent() : <p>Loading...</p>}
-          {scroll.scrollToBottom({duration: this.state.scrollDuration, smooth: 'linear', isDynamic: true})}
+        <div id='contentContainer' className='content'>
+          {this.state.loadedContent.length > 0 ? this.state.loadedContent : <p>Loading..</p>}      
         </div>
         {window.location.search.substring(1) ? <Button key='backToTop' variant='outline-secondary' className='button' onClick={() => scroll.scrollToTop({duration: 100})}>Back to Top</Button> : <div />}
       </div>
