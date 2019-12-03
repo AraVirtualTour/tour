@@ -1,3 +1,5 @@
+export { default as LoadingScreen } from './loadingScreen';
+
 export { default as Text } from './text';
 export { default as Image } from './image';
 export { default as Panorama } from './panorama';

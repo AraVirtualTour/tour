@@ -5,7 +5,7 @@ import { Events, animateScroll as scroll } from 'react-scroll';
 import './css/tour.css';
 import './css/components.css';
 
-import { Text, Image, Panorama, Link, Audio } from './components';
+import { LoadingScreen, Text, Image, Panorama, Link, Audio } from './components';
 
 const backendHost = `http://${window.location.hostname}`;
 const backendPort = '8080';
@@ -29,7 +29,7 @@ export default class Tour extends React.Component {
     fetch(`${backendHost}:${backendPort}/content/locations.json`)
       .then(response => response.text())
       .then(text => this.setState({locations: JSON.parse(text).locations}));
-
+    
     this.setState({currentLocation: window.location.search.substring(1)}, function () {
       if (this.state.currentLocation) {
         fetch(`${backendHost}:${backendPort}/content/${this.state.currentLocation}/${this.state.currentLocation}.json`)
@@ -43,10 +43,11 @@ export default class Tour extends React.Component {
                 requiredContent.push(file);
               }
             }
-
+            
             this.setState({requiredContent: requiredContent}, function () {
               for (let file of this.state.requiredContent) {
-                console.log()
+                console.log(document.getElementById(file.id))
+                console.log(this.getOffset(document.getElementById(file.id)).top)
                 console.log(document.getElementById(file.id).clientHeight)
               }
             });
@@ -54,6 +55,8 @@ export default class Tour extends React.Component {
             this.renderContent();
           })
         );
+      } else {
+        this.renderContent();
       }
     });
 
@@ -75,14 +78,6 @@ export default class Tour extends React.Component {
 
   renderContent() {
     let renderedContent = [];
-
-    if (!this.state.currentLocation) {
-      for (let location of this.state.locations) {
-        renderedContent.push(<a key='0' href={`/tour?${location.name}`}>{location.name}</a>);
-      }
-
-      return renderedContent;
-    }
 
     for (let file of this.state.locationContent) {
       let id = file['id'];
@@ -107,10 +102,24 @@ export default class Tour extends React.Component {
         renderedContent.push(<Audio key={id} id={id} required={isRequired} title={title} src={source} type='audio/wav' />);
       }
 
-      if (file['src'.includes('')])
+      if (file['src'.includes('ass')]) {
+        console.log(source)
+      }
     }
     
     this.setState({loadedContent: renderedContent});
+  }
+
+  renderLocationList () {
+    let renderedContent = [];
+
+    if (!this.state.currentLocation) {
+      for (let location of this.state.locations) {
+        renderedContent.push(<a key='0' href={`/tour?${location.name}`}>{location.name}</a>);
+      }
+    }
+
+    return renderedContent;
   }
 
   scrollUpdate () {
@@ -130,7 +139,10 @@ export default class Tour extends React.Component {
     return (
       <div className='Tour'>
         <div id='contentContainer' className='content'>
-          {this.state.loadedContent.length > 0 ? this.state.loadedContent : <p>Loading..</p>}      
+          {this.state.loadedContent.length > 0 && this.state.locations.length > 0 ? this.state.loadedContent :
+          this.state.currentLocation ? <LoadingScreen /> : null}
+          {!this.state.currentLocation ? this.renderLocationList() : 
+          !this.state.loadedContent.length > 0 && !this.state.locations.length > 0 ? <LoadingScreen /> : null}     
         </div>
         {window.location.search.substring(1) ? <Button key='backToTop' variant='outline-secondary' className='button' onClick={() => scroll.scrollToTop({duration: 100})}>Back to Top</Button> : <div />}
       </div>
