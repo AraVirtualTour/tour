@@ -5,6 +5,7 @@ html, body, #root, .LandingPage, .button {
 .LandingPage {
   display: flex;
   flex-direction: column;
+  background-color: #ffffff;
 }
 
 .button {
@@ -19,4 +20,11 @@ html, body, #root, .LandingPage, .button {
   display: table-cell;
   align-content: center;
   vertical-align: middle;
+}
+
+#bg {
+  margin: 0 auto;
+  position: absolute;
+  max-height: 100%;
+  z-index: -1;
 }

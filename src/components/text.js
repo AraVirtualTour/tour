@@ -1,7 +1,5 @@
 import React from 'react';
 
-import RequiredPoint from './requiredPoint';
-
 
 export default class Text extends React.Component {
   constructor (props) {
@@ -18,21 +16,12 @@ export default class Text extends React.Component {
       .then((response) => this.setState({text: response}));
   }
 
-  renderRequired () {
-    if (this.props.required) {
-      return <RequiredPoint id={this.props.id} />;
-    }
-  }
-
   render () {
     return (
-      <div id={this.props.id} className='text requiredPointFlex'>
-        <div>
-          {this.props.title ? [<h1 key='title'>{this.props.title}</h1>,
-                              <p key='text'>{this.state.text}</p>] :
-                              <p>{this.state.text}</p>}
-        </div>
-        {this.renderRequired()}
+      <div id={this.props.id} className='text'>
+        {this.props.title ? [<h1 key='title'>{this.props.title}</h1>,
+                            <p key='text'>{this.state.text}</p>] :
+                            <p>{this.state.text}</p>}
       </div>
     );
   }

@@ -1,8 +1,6 @@
 import React from 'react';
 import YTPlayer from 'yt-player';
 
-import RequiredPoint from './requiredPoint';
-
 
 export default class Link extends React.Component {
   constructor (props) {
@@ -24,26 +22,20 @@ export default class Link extends React.Component {
 
     if (url.includes('youtube') || url.includes('youtu.be')) {
       let videoId = url.match(/v=.*/gm).toString().replace('v=', '');
-      let player = new YTPlayer(`#player${this.props.id}`, {width: '100%', height: '100%'});
+      let player = new YTPlayer(`#player${this.props.id}`, { width: '100%', height: '100%' });
 
       player.load(videoId);
+      player.on('unstarted', () => {this.props.parent.onLoad()});
     } else {
       return <a href={this.state.url} target='_blank' rel='noopener noreferrer'>{this.props.title}</a>;
     }
   }
 
-  renderRequired () {
-    if (this.props.required) {
-      return <RequiredPoint id={this.props.id} />;
-    }
-  }
-
   render () {
     return (
-      <div id={this.props.id} className='link requiredPointFlex'>
+      <div id={this.props.id} className='link'>
         <div id={`player${this.props.id}`} />
         {this.renderContent()}
-        {this.renderRequired()}
       </div>
     );
   }
