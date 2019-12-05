@@ -12,8 +12,8 @@ export default class Text extends React.Component {
   
   componentDidMount () {
     fetch(this.props.src)
-      .then(response => response.text())
-      .then((response) => this.setState({text: response}));
+    .then(response => response.text())
+    .then(text => this.setState({text: text}));
   }
 
   render () {

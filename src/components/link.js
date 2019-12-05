@@ -13,8 +13,8 @@ export default class Link extends React.Component {
 
   componentDidMount () {
     fetch(this.props.src)
-      .then(response => response.text())
-      .then((response) => this.setState({ url: response.match(/http.*/gm) }));
+    .then(response => response.text())
+    .then(text => this.setState({ url: text.match(/http.*/gm) }));
   }
 
   renderContent () {
