@@ -13,9 +13,9 @@
   position: absolute;
 }
 
-.panorama  > img {
+.panorama > img {
   padding-top: 3.5em;
-  display:block;
+  display: block;
   max-width: initial;
   overflow-x: auto;
 }
@@ -37,8 +37,35 @@
   background-color: #2f2f2f;
   justify-content: center;
   align-items: center;
+  z-index: 1;
 }
 
 .loadingScreen > p {
   color: #ffffff;
 }
+
+.fullscreen {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: left;
+  text-align: left;
+  height: 100%;
+  width: 25rem;
+  position: fixed;
+  z-index: 1;
+  top: 0;
+  overflow-x: hidden;
+  color: #ffffff;
+  transition: 0.25s;
+  background-color: #2f2f2f;
+}
+
+
+@media only screen and (max-width: 30rem) {
+  .fullscreen {
+    max-width: 100%;
+    width: 100%;
+  }
+}
+  

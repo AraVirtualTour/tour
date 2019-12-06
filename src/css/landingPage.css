@@ -1,4 +1,8 @@
-html, body, #root, .LandingPage, .button {
+html,
+body,
+#root,
+.LandingPage,
+.button {
   height: 100%;
 }
 

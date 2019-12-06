@@ -1,10 +1,9 @@
-import React from 'react';
-
+import React from "react";
 
 export default class LoadingScreen extends React.Component {
-  render () {
+  render() {
     return (
-      <div className='loadingScreen'>
+      <div className="loadingScreen">
         <p>Loading..</p>
       </div>
     );

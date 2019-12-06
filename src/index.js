@@ -1,27 +1,23 @@
-import React from 'react';
-import ReactDOM from 'react-dom';
-import {
-  BrowserRouter as Router,
-  Switch, Route 
-} from 'react-router-dom';
+import React from "react";
+import ReactDOM from "react-dom";
+import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
 
-import LandingPage from './landingPage';
-import Tour from './tour';
+import LandingPage from "./landingPage";
+import Tour from "./tour";
 
-import 'bootstrap/dist/css/bootstrap.min.css';
-import './css/index.css';
-
+import "bootstrap/dist/css/bootstrap.min.css";
+import "./css/index.css";
 
 class App extends React.Component {
-  render () {
+  render() {
     return (
       <Router>
         <Switch>
-          <Route path='/tour'>
+          <Route path="/tour">
             <Tour />
           </Route>
-          <Route path='/game' />
-          <Route path='/'>
+          <Route path="/game" />
+          <Route path="/">
             <LandingPage />
           </Route>
         </Switch>
@@ -30,4 +26,4 @@ class App extends React.Component {
   }
 }
 
-ReactDOM.render(<App />, document.getElementById('root'));
+ReactDOM.render(<App />, document.getElementById("root"));
