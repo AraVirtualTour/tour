@@ -1,27 +1,28 @@
-import React from "react";
+import React from 'react';
+
 
 export default class Text extends React.Component {
-  constructor(props) {
+  constructor (props) {
     super(props);
 
     this.state = {
-      text: ""
+      text: ''
     };
   }
 
-  componentDidMount() {
+  componentDidMount () {
     fetch(this.props.src)
       .then(response => response.text())
       .then(text => this.setState({ text: text }));
   }
 
-  render() {
+  render () {
     return (
-      <div id={this.props.id} className="text">
+      <div id={this.props.id} className='text content'>
         {this.props.title ? (
           [
-            <h1 key="title">{this.props.title}</h1>,
-            <p key="text">{this.state.text}</p>
+            <h1 key='title'>{this.props.title}</h1>,
+            <p key='text'>{this.state.text}</p>
           ]
         ) : (
           <p>{this.state.text}</p>
