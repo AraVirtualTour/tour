@@ -1,12 +1,13 @@
-import React from 'react';
+import React, { Component } from 'react';
 import YTPlayer from 'yt-player';
 
 
-export default class Link extends React.Component {
+export default class Link extends Component {
   constructor (props) {
     super(props);
 
     this.state = {
+      loaded: false,
       url: ''
     };
   }
@@ -31,6 +32,7 @@ export default class Link extends React.Component {
       });
 
       player.load(videoId);
+      player.on('unstarted', () => { this.props.parent.loadElement() })
     } else {
       return (
         <a href={this.state.url} target='_blank' rel='noopener noreferrer'>
@@ -40,11 +42,18 @@ export default class Link extends React.Component {
     }
   }
 
+  enter () {}
+
+  exit () {}
+
   render () {
     return (
-      <div id={this.props.id} className='link content'>
-        <div id={`player${this.props.id}`} />
-        {this.renderContent()}
+      <div id={`container${this.props.id}`} className='link'>
+        <div id={this.props.id}>
+          <div id={`player${this.props.id}`} />
+          {this.renderContent()}
+        </div>
+        <div id={`padding${this.props.id}`} className='elementPadding' />
       </div>
     );
   }

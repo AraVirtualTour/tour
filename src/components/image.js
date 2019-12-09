@@ -1,23 +1,26 @@
-import React from 'react';
+import React, { Component } from 'react';
 
 
-export default class Image extends React.Component {
-  constructor (props) {
-    super(props);
-
-    this.state = {
-      imageElement: (
-        <img key='image' src={this.props.src} alt={this.props.alt} />
-      )
-    };
+export default class Image extends Component {
+  componentDidMount () {
+    this.props.parent.loadElement();
   }
+
+  enter () {}
+
+  exit () {}
 
   render () {
     return (
-      <div id={this.props.id} className='image content'>
-        {this.props.title !== ''
-          ? [<h1 key='title'>{this.props.title}</h1>, this.state.imageElement]
-          : this.state.imageElement}
+      <div id={`container${this.props.id}`} className='image'>
+        <div id={this.props.id}>
+          {this.props.title
+            ? <h1 key='title'>{this.props.title}</h1>
+            : null
+          }
+          <img key='image' src={this.props.src} alt={this.props.alt} />
+        </div>
+        <div id={`padding${this.props.id}`} className='elementPadding' />
       </div>
     );
   }

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Component } from 'react';
 import Button from 'react-bootstrap/Button';
 
 import { LocationList } from './components';
@@ -6,7 +6,7 @@ import { LocationList } from './components';
 import './css/landingPage.css';
 
 
-export default class LandingPage extends React.Component {
+export default class LandingPage extends Component {
   constructor (props) {
     super(props);
 
@@ -18,7 +18,10 @@ export default class LandingPage extends React.Component {
   render() {
     return (
       <div id='landingPage'>
-        {this.state.showLocations ? <LocationList locationsData={this.props.locationsData} /> : null}
+        {this.state.showLocations
+          ? <LocationList locationsData={this.props.locationsData} />
+          : null
+        }
         <Button variant='outline-secondary' className='button' onClick={() => this.setState({ showLocations: true })}>
           <p>Tour</p>
         </Button>

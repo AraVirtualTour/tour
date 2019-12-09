@@ -1,7 +1,7 @@
-import React from 'react';
+import React, { Component } from 'react';
 
 
-export default class LocationList extends React.Component {
+export default class LocationList extends Component {
   renderList () {
     let renderedContent = [];
 

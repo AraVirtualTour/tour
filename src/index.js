@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
 import { BrowserRouter as Router, Switch, Route, Redirect } from 'react-router-dom';
 
@@ -13,7 +13,7 @@ const backendHost = `http://${window.location.hostname}`;
 const backendPort = '8080';
 
 
-class App extends React.Component {
+class Index extends Component {
   constructor (props) {
     super(props);
 
@@ -64,4 +64,4 @@ class App extends React.Component {
   }
 }
 
-ReactDOM.render(<App />, document.getElementById('root'));
+ReactDOM.render(<Index />, document.getElementById('root'));

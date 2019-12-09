@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Component } from 'react';
 import 'video.js/dist/video-js.css';
 import videojs from 'video.js';
 
@@ -8,7 +8,7 @@ import 'videojs-wavesurfer/dist/css/videojs.wavesurfer.css';
 import 'videojs-wavesurfer/dist/videojs.wavesurfer.js';
 
 
-export default class Audio extends React.Component {
+export default class Audio extends Component {
   constructor (props) {
     super(props);
 
@@ -41,13 +41,16 @@ export default class Audio extends React.Component {
       }
     };
 
-    if (this.props.subtitleSrc) this.options.tracks = this.textTracks;
+    if (this.props.subtitleSrc) {
+      this.options.tracks = this.textTracks;
+      this.props.parent.loadElement();
+    }
   }
 
   componentDidMount () {
     this.player = videojs(`audio${this.props.id}`, this.options);
-
-    this.player.on('waveReady', () => {this.props.parent.onLoad()});
+    
+    this.player.on('waveReady', () => { this.props.parent.loadElement() });
   }
 
   componentWillUnmount () {
@@ -56,13 +59,27 @@ export default class Audio extends React.Component {
     }
   }
 
+  enter () {
+    this.player.wavesurfer().play();
+  }
+
+  exit () {
+    this.player.wavesurfer().pause();
+  }
+
   render () {
     return (
-      <div id={this.props.id} className='audio content'>
-        {this.props.title ? <h1>{this.props.title}</h1> : null}
-        <div data-vjs-player>
-          <audio id={`audio${this.props.id}`} ref={node => this.audioNode = node} src={this.props.src} type={this.props.type} className='audio video-js vjs-default-skin' />
+      <div id={`container${this.props.id}`} className='audio'>
+        <div id={this.props.id}>
+          {this.props.title
+            ? <h1>{this.props.title}</h1>
+            : null
+          }
+          <div data-vjs-player>
+            <audio id={`audio${this.props.id}`} ref={node => this.audioNode = node} src={this.props.src} type={this.props.type} className='audio video-js vjs-default-skin' />
+          </div>
         </div>
+        <div id={`padding${this.props.id}`} className='elementPadding' />
       </div>
     );
   }
