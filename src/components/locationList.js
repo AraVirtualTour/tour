@@ -1,15 +1,23 @@
 import React, { Component } from 'react';
+import Button from 'react-bootstrap/Button';
+
+import '../css/components.css';
 
 
 export default class LocationList extends Component {
+  openTour (location) {
+    window.sessionStorage.setItem('visited', 'true');
+    window.location.pathname = location;
+  }
+
   renderList () {
     let renderedContent = [];
 
     for (let location of this.props.locationsData) {
       renderedContent.push(
-        <a key={location.name} href={`/${location.name}`} onClick={() => window.sessionStorage.setItem('wayfindingEnabled', 'false')}>
+        <Button key={location.name} onClick={() => { this.openTour(location.name) }}>
           {location.name}
-        </a>
+        </Button>
       );
     }
 

@@ -1,11 +1,14 @@
 import React, { Component } from 'react';
 
+import '../css/components.css';
+
 
 export default class Text extends Component {
   constructor (props) {
     super(props);
 
     this.state = {
+      isOpen: false,
       text: ''
     };
   }
@@ -19,16 +22,20 @@ export default class Text extends Component {
     this.props.parent.loadElement();
   }
 
-  enter () {}
+  onOpen () {
+    this.setState({ isOpen: true });
+  }
 
-  exit () {}
+  onClose () {
+    this.setState({ isOpen: false });
+  }
 
   render () {
     return (
       <div id={`container${this.props.id}`} className='text'>
         <div id={this.props.id}>
           {this.props.title
-            ? <h1 key='title'>{this.props.title}</h1>
+            ? <h1>{this.props.title}</h1>
             : null
           }
           <p>{this.state.text}</p>

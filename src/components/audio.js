@@ -7,10 +7,16 @@ import 'wavesurfer.js';
 import 'videojs-wavesurfer/dist/css/videojs.wavesurfer.css';
 import 'videojs-wavesurfer/dist/videojs.wavesurfer.js';
 
+import '../css/components.css';
+
 
 export default class Audio extends Component {
   constructor (props) {
     super(props);
+
+    this.state = {
+      isOpen: false
+    };
 
     this.textTracks = [{
       kind: 'subtitles',
@@ -41,10 +47,8 @@ export default class Audio extends Component {
       }
     };
 
-    if (this.props.subtitleSrc) {
-      this.options.tracks = this.textTracks;
-      this.props.parent.loadElement();
-    }
+    if (this.props.subtitleSrc) this.options.tracks = this.textTracks;
+    this.props.parent.loadElement();
   }
 
   componentDidMount () {
@@ -59,11 +63,21 @@ export default class Audio extends Component {
     }
   }
 
-  enter () {
+  toggleOpen () {
+    if (this.state.isOpen) {
+      this.onClose();
+    } else {
+      this.onOpen();
+    }
+  }
+
+  onOpen () {
+    this.setState({ isOpen: true });
     this.player.wavesurfer().play();
   }
 
-  exit () {
+  onClose () {
+    this.setState({ isOpen: false });
     this.player.wavesurfer().pause();
   }
 

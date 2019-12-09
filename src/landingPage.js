@@ -1,28 +1,22 @@
 import React, { Component } from 'react';
 import Button from 'react-bootstrap/Button';
 
-import { LocationList } from './components';
-
 import './css/landingPage.css';
 
 
 export default class LandingPage extends Component {
-  constructor (props) {
-    super(props);
-
-    this.state = {
-      showLocations: false
-    };
+  openTour () {
+    if (window.location.pathname.substring(1)) {
+      this.props.parent.setState({showTour: true});
+    } else {
+      this.props.parent.setState({showLocations: true});
+    }
   }
 
   render() {
     return (
       <div id='landingPage'>
-        {this.state.showLocations
-          ? <LocationList locationsData={this.props.locationsData} />
-          : null
-        }
-        <Button variant='outline-secondary' className='button' onClick={() => this.setState({ showLocations: true })}>
+        <Button variant='outline-secondary' className='button' onClick={() => { this.openTour() }}>
           <p>Tour</p>
         </Button>
         <Button variant='outline-secondary' className='button' href='/defend'>

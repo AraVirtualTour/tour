@@ -1,8 +1,9 @@
 import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
-import { BrowserRouter as Router, Switch, Route, Redirect } from 'react-router-dom';
+// import { BrowserRouter as Router, Switch, Route, Redirect } from 'react-router-dom';
 
 import LandingPage from './landingPage';
+import { LocationList } from './components';
 import Tour from './tour';
 
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -19,12 +20,19 @@ class Index extends Component {
 
     this.state = {
       showLocations: false,
-      locations: []
+      showTour: false,
+      locations: [],
+      routes: [],
+      visited: false
     }
   }
 
   componentDidMount () {
-    if (window.location.pathname.substring(1) && !window.sessionStorage.getItem('wayfindingEnabled')) {
+    if (JSON.parse(window.sessionStorage.getItem('visited'))) {
+      this.setState({ showTour: true });
+    }
+
+    if (window.location.pathname.substring(1)) {
       window.sessionStorage.setItem('wayfindingEnabled', 'true');
     } else {
       window.sessionStorage.setItem('wayfindingEnabled', 'false');
@@ -35,31 +43,22 @@ class Index extends Component {
       .then(text => this.setState({ locations: JSON.parse(text).locations }));
   }
 
-  createRoutes () {
-    let routes = [];
-    
-    for (let location of this.state.locations) {
-      routes.push(
-        <Route key={`route${location.name}`} path={`/${location.name}`}>
-          <Tour locations={this.state.locations} backendHost={backendHost} backendPort={backendPort} />
-        </Route>
-      );
-    }
-
-    return routes;
-  }
-
   render() {
     return (
-      <Router>
-        <Switch>
-          {this.createRoutes()}
-          <Route path="/">
-            <LandingPage locationsData={this.state.locations} />
-          </Route>
-          <Redirect to="/" />
-        </Switch>
-      </Router>
+      <div id='index'>
+        {!this.state.showLocations && !this.state.showTour
+          ? <LandingPage parent={this} locationsData={this.state.locations} />
+          : null
+        }
+        {this.state.showLocations
+          ? <LocationList parent={this} locationsData={this.state.locations} />
+          : null
+        }
+        {this.state.showTour
+          ? <Tour parent={this} backendHost={backendHost} backendPort={backendPort} />
+          : null
+        }
+      </div>
     );
   }
 }

@@ -4,12 +4,11 @@ import { Events, animateScroll as scroll } from 'react-scroll';
 import ScrollMagic from 'scrollmagic';
 
 import {
-  LoadingScreen, FinishedDialog,
-  Text, Image, Panorama, Link, Audio
+  LoadingScreen, TourFooter,
+  Text, Image, Panorama, Video, Audio
 } from './components';
 
 import './css/tour.css';
-import './css/components.css';
 
 
 export default class Tour extends Component {
@@ -21,7 +20,7 @@ export default class Tour extends Component {
       loadText: 0,
       locationContent: [],
       loadedContent: [],
-      wayfindingEnabled: false,
+      isWayfindingEnabled: false,
       reachedBottom: false
     };
 
@@ -29,7 +28,7 @@ export default class Tour extends Component {
     this.currentLocation = window.location.pathname.substring(1);
     this.currentScrollPoint = 0;
     this.scrollPoints = [];
-    this.isAutoScrolling = false;
+    this.isAutoScrolling = true;
     this.timeOutReference = null;
     this.fullscreenScrollScenes = [];
 
@@ -39,12 +38,15 @@ export default class Tour extends Component {
   }
 
   componentDidMount () {
-    if (JSON.parse(window.sessionStorage.getItem('wayfindingEnabled'))) {
-      this.setState({ wayfindingEnabled: JSON.parse(window.sessionStorage.getItem('wayfindingEnabled')) });
-      console.log('DEBUG: Wayfinding on');
-    }
-
+    window.sessionStorage.setItem('visited', 'false');
     document.getElementById('contentContainer').style.display = 'none';
+
+    if (JSON.parse(window.sessionStorage.getItem('wayfindingEnabled'))) {
+      this.setState({ isWayfindingEnabled: true });
+      console.log('DEBUG: Wayfinding on');
+    } else {
+      this.setState({ isWayfindingEnabled: false });
+    }
 
     fetch(`${this.props.backendHost}:${this.props.backendPort}/content/${this.currentLocation}/${this.currentLocation}.json`)
       .then(response => response.text())
@@ -54,25 +56,27 @@ export default class Tour extends Component {
     );
     
     Events.scrollEvent.register('end', () => this.stopScroll());
-    window.addEventListener('scroll', () => this.handleScroll());
+    window.addEventListener('scroll', () => this.handleScroll(), false);
   }
 
   componentWillUnmount () {
+    this.scrollController = this.scrollController.destroy(true);
     Events.scrollEvent.remove('end');
+    window.removeEventListener('scroll', () => this.handleScroll(), false);
   }
 
   generateContent () {
     let generatedContent = [];
 
-    generatedContent.push(<h1 key='locationHeader'>{this.currentLocation}</h1>);
-
     for (let file of this.state.locationContent) {
       let id = file['id'];
-      let source = `${this.props.backendHost}:${this.props.backendPort}/content/${this.currentLocation}/${file['src']}`;
+      let source = file['src'].includes('http')
+        ? file['src']
+        : `${this.props.backendHost}:${this.props.backendPort}/content/${this.currentLocation}/${file['src']}`;
       let title = file['title'];
       let isRequired = file['required'];        
 
-      if (file['src'].includes('jpg')) {
+      if (file['src'].includes('jpg') || file['src'].includes('png')) {
         generatedContent.push(
           file['src'].includes('_pano')
             ? <Panorama ref={(ref) => { this.childReferences[parseInt(id)] = ref; return true; }} parent={this} key={id}
@@ -89,9 +93,9 @@ export default class Tour extends Component {
         );
       }
 
-      if (file['src'].includes('url')) {
+      if (file['src'].includes('youtube') || file['src'].includes('youtu.be')) {
         generatedContent.push(
-          <Link ref={(ref) => { this.childReferences[parseInt(id)] = ref; return true; }} parent={this} key={id}
+          <Video ref={(ref) => { this.childReferences[parseInt(id)] = ref; return true; }} parent={this} key={id}
           id={id} required={isRequired} title={title} src={source} />
         );
       }
@@ -101,7 +105,6 @@ export default class Tour extends Component {
         let subtitleSrc = subtitleData
           ? `${this.props.backendHost}:${this.props.backendPort}/content/${this.currentLocation}/${subtitleData.src}`
           : null;
-
         generatedContent.push(
           <Audio ref={(ref) => { this.childReferences[parseInt(id)] = ref; return true; }} parent={this} key={`audio${id}`}
           id={id} required={isRequired} title={title} src={source} subtitleData={subtitleData} subtitleSrc={subtitleSrc} type='audio/wav' />
@@ -115,7 +118,7 @@ export default class Tour extends Component {
   loadElement () {
     this.loadedItemsCount += 1;
 
-    this.setState({ loadText: `${(this.loadedItemsCount / this.state.loadedContent.length) * 100}%` }, () => {
+    this.setState({ loadText: `${Math.ceil((this.loadedItemsCount / this.state.loadedContent.length) * 100)}%` }, () => {
       if (this.loadedItemsCount === this.state.loadedContent.length) {
         this.load();
       }
@@ -129,37 +132,41 @@ export default class Tour extends Component {
     for (let file of this.state.locationContent) {
       if (file.src.includes('vtt')) continue;
 
-      let element = document.getElementById(`${file.id}`);
       let elementContainer = document.getElementById(`container${file.id}`);
-      let scrollY = window.scrollY;
-
       if (file.required) {
         this.fullscreenScrollScenes.push(
+          
           new ScrollMagic.Scene({ triggerElement: elementContainer, triggerHook: 0,
                                   duration: elementContainer.getBoundingClientRect().height })
-            .setClassToggle(element, 'fullscreen')
+            // .setClassToggle(element, 'fullscreen')
             .addTo(this.scrollController)
-            .on('enter', () => { this.childReferences[parseInt(file.id)].enter() })
-            .on('leave', () => { this.childReferences[parseInt(file.id)].exit() })
+            .on('enter', () => { this.handleOpenElement(file) })
+            .on('leave', () => {  this.handleCloseElement(file)})
         );
       }
-
-      this.scrollPoints.push({ y: elementContainer.getBoundingClientRect().bottom + scrollY, time: file.time * 1000 });
+      
+      this.scrollPoints.push({ y: elementContainer.getBoundingClientRect().bottom, time: file.time * 1000 });
     }
-
-    let paddingHeight = document.getElementById('padding').style.height + window.innerHeight;
-    document.getElementById('padding').style.height = `${paddingHeight}px`;      
     
     window.scrollBy(0, document.getElementById('root').getBoundingClientRect().top);
     this.startScroll();
   }
 
-  handleScroll () {
-    if (window.scrollY === document.getElementById('contentContainer').clientHeight &&
-        this.state.loaded && !this.state.reachedBottom) {
-      this.endLocationTour();
-    }
+  handleOpenElement (element) {
+    console.log(element.id)
+    // if (element.required) {
 
+    // }
+    // this.childReferences[parseInt(element.id)].onOpen()
+    console.log('opened');
+  }
+
+  handleCloseElement (element) {
+    // this.childReferences[parseInt(elementId)].onClose()
+    console.log('closed');
+  }
+
+  handleScroll () {
     for (let scene of this.fullscreenScrollScenes) {
       if (this.isAutoScrolling) {
         scene.enabled(true);
@@ -173,30 +180,33 @@ export default class Tour extends Component {
       }
     }
 
-    if (!this.isAutoScrolling) {
+    if (!this.isAutoScrolling && !this.state.reachedBottom) {
       clearTimeout(this.timeOutReference);
       this.resumeScroll();
     }
   }
 
   startScroll () {
-    let y = this.scrollPoints[this.currentScrollPoint].y;
-    let time = this.scrollPoints[this.currentScrollPoint].time;
-    
-    this.isAutoScrolling = true;
-    scroll.scrollTo(y, {
-      duration: time !== 0 ? time : 10000,
-      delay: 1000,
-      smooth: 'linear',
-      isDynamic: true
-    });
+    if (!this.state.reachedBottom) {
+      let y = this.scrollPoints[this.currentScrollPoint].y;
+      let time = this.scrollPoints[this.currentScrollPoint].time;
+      
+      this.isAutoScrolling = true;
+      scroll.scrollTo(y, {
+        duration: 1000,//time !== 0 ? time : 10000,
+        delay: 1000,
+        smooth: 'linear',
+        isDynamic: true
+      });
+    }
   }
 
   stopScroll () {
     this.currentScrollPoint += 1;
 
-    if (window.scrollY === document.getElementById('contentContainer').clientHeight) {
-      this.endLocationTour();
+    if (window.scrollY + window.innerHeight === document.getElementById('tour').getBoundingClientRect().height) {
+      this.setState({ reachedBottom: true });
+      return;
     }
     
     if (window.scrollY === Math.ceil(this.scrollPoints[this.currentScrollPoint - 1].y)) {
@@ -225,12 +235,6 @@ export default class Tour extends Component {
     }, 3000);
   }
 
-  endLocationTour () {
-    this.setState({ reachedBottom: true });    
-    document.getElementById('padding').remove();
-    this.scrollController = this.scrollController.destroy(true);
-  }
-
   render () {
     return (
       <div id='tour'>
@@ -240,12 +244,11 @@ export default class Tour extends Component {
             : null} />
           : null
         }
-        <div key='contentContainer' id='contentContainer' className='content'>
-          {!this.state.reachedBottom ? this.state.loadedContent
-            : <FinishedDialog currentLocation={this.currentLocation} locationsData={this.props.locations} />
-          }
+        <div id='contentContainer' className='content'>
+          <h1 key='locationHeader'>{this.currentLocation}</h1>
+          {this.state.loadedContent}
         </div>
-        <div id='padding' />
+        <TourFooter parent={this} currentLocation={this.currentLocation} />
       </div>
     );
   }
