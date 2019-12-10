@@ -6,7 +6,7 @@ import './css/landingPage.css';
 
 export default class LandingPage extends Component {
   openTour () {
-    if (window.location.pathname.substring(1)) {
+    if (window.location.search.substring(1)) {
       this.props.parent.setState({showTour: true});
     } else {
       this.props.parent.setState({showLocations: true});

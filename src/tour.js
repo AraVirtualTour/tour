@@ -24,12 +24,13 @@ export default class Tour extends Component {
     };
 
     this.loadedItemsCount = 0;
-    this.currentLocation = window.location.pathname.substring(1);
+    this.currentLocation = window.location.search.substring(1);
     this.currentScrollPoint = 0;
     this.scrollPoints = [];
     this.isAutoScrolling = true;
     this.timeOutReference = null;
     this.fullscreenScrollScenes = [];
+    this.isElementOpen = false;
 
     this.scrollController = new ScrollMagic.Controller();
 
@@ -136,6 +137,7 @@ export default class Tour extends Component {
       
       this.scrollPoints.push({ y: elementContainer.getBoundingClientRect().bottom, time: file.time * 1000 });
     }
+
     this.start();
   }
 
@@ -150,37 +152,47 @@ export default class Tour extends Component {
   handleOpenElement (element) {
     if (this.isAutoScrolling) {
       this.childReferences[parseInt(element.id)].onOpen()    
-      console.log(element.id, 'opened');
     }
   }
 
   handleCloseElement (element) {
     if (this.isAutoScrolling) {
       this.childReferences[parseInt(element.id)].onClose()
-      console.log(element.id, 'closed');
     }
   }
 
   handleScroll () {
+    this.isElementOpen = false;
+
+    if (this.state.loaded) {
+      for (let reference in this.childReferences) {
+        if (reference === 0) continue;
+
+        try {
+          if (this.childReferences[reference].state.isOpen) {
+            this.isElementOpen = true;
+          }
+        } catch (error) {
+          console.log(error)
+        }
+      }
+    }
+
+    if (!this.isElementOpen) {
+      if (!this.isAutoScrolling || !this.state.reachedBottom) {
+        this.cancelEvents();
+      }
+
+      clearTimeout(this.timeOutReference);
+      this.resumeScroll();
+    }
+
     for (let scene of this.fullscreenScrollScenes) {
       if (this.isAutoScrolling) {
         scene.enabled(true);
       } else {
-        for (let element of document.getElementsByClassName('fullscreen')) {
-          element.classList.remove('fullscreen');
-        }
-
-        for (let element of document.getElementsByClassName('rotate')) {
-          element.classList.remove('rotate');
-        }
-
         scene.enabled(false);
       }
-    }
-
-    if (!this.isAutoScrolling && !this.state.reachedBottom) {
-      clearTimeout(this.timeOutReference);
-      this.resumeScroll();
     }
   }
 
@@ -210,13 +222,7 @@ export default class Tour extends Component {
         scene.enabled(false);
       }
 
-      for (let element of document.getElementsByClassName('fullscreen')) {
-        element.classList.remove('fullscreen');
-      }
-
-      for (let element of document.getElementsByClassName('rotate')) {
-        element.classList.remove('rotate');
-      }
+      this.cancelEvents();
 
       return;
     }
@@ -225,7 +231,14 @@ export default class Tour extends Component {
       this.startScroll();
     } else {
       this.isAutoScrolling = false;
-      this.resumeScroll();      
+      if (!this.isElementOpen) {
+        if (!this.isAutoScrolling || !this.state.reachedBottom) {
+          this.cancelEvents();
+        }
+  
+        clearTimeout(this.timeOutReference);
+        this.resumeScroll();
+      }     
     }
   }
 
@@ -245,6 +258,16 @@ export default class Tour extends Component {
       this.currentScrollPoint = nextPointIndex;
       this.startScroll();
     }, 3000);
+  }
+
+  cancelEvents () {
+    for (let element of document.getElementsByClassName('fullscreen')) {
+      element.classList.remove('fullscreen');
+    }
+
+    for (let element of document.getElementsByClassName('rotate')) {
+      element.classList.remove('rotate');
+    }
   }
 
   render () {

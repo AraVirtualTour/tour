@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
-// import { BrowserRouter as Router, Switch, Route, Redirect } from 'react-router-dom';
+// import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
 
 import LandingPage from './landingPage';
 import { LocationList, Wayfinding } from './components';
@@ -11,7 +11,7 @@ import './css/index.css';
 
 
 const backendHost = `http://${window.location.hostname}`;
-const backendPort = '8080';
+const backendPort = '8081';
 
 
 class Index extends Component {
@@ -30,21 +30,45 @@ class Index extends Component {
   }
 
   componentDidMount () {
-    if (JSON.parse(window.sessionStorage.getItem('visited'))) {
-      this.setState({ showTour: true });
-    } else {
-      if (window.location.pathname.substring(1)) {
-        window.sessionStorage.setItem('wayfindingEnabled', 'true');
-        this.setState({ wayfindingEnabled: true });
-      } else {
-        window.sessionStorage.setItem('wayfindingEnabled', 'false');
-        this.setState({ wayfindingEnabled: false });
-      }
-    }
+    fetch(`${backendHost}:${backendPort}/content/locations.json`)
+      .then(response => response.text())
+      .then(text => this.setState({ locations: JSON.parse(text).locations }, () => {
+        if (JSON.parse(window.sessionStorage.getItem('visited'))) {
+          this.setState({ showTour: true });
+    
+          if (JSON.parse(window.sessionStorage.getItem('wayfindingEnabled'))) {
+            this.setState({ wayfindingEnabled: true });
+          } else {
+            this.setState({ wayfindingEnabled: false });
+          }
+        } else {
+          if (window.location.search.substring(1)) {
+            let foundLocation = false;
+
+            window.sessionStorage.setItem('wayfindingEnabled', 'true');
+            this.setState({ wayfindingEnabled: true });
+
+            for (let location of this.state.locations) {
+              if (window.location.search.includes(location.name) || window.location.search.includes('defend')) {
+                foundLocation = true;
+                break;
+              }
+            }
+
+            if (!foundLocation) {
+              window.location.search = '';
+            }
+          } else {
+            window.sessionStorage.setItem('wayfindingEnabled', 'false');
+            this.setState({ wayfindingEnabled: false });
+          }
+        }
+      })
+    );
 
     fetch(`${backendHost}:${backendPort}/content/locations.json`)
       .then(response => response.text())
-      .then(text => this.setState({ locations: JSON.parse(text).locations })
+      .then(text => this.setState({ routes: JSON.parse(text).routes })
     );
   }
 
@@ -64,7 +88,7 @@ class Index extends Component {
           : null
         }
         {this.state.showWayfinding
-          ? <Wayfinding />
+          ? <Wayfinding parent={this} routeData={this.state.routes} />
           : null
         }
       </div>

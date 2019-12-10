@@ -30,15 +30,15 @@ export default class TourFooter extends Component {
         <Button variant='outline-primary' className='button' onClick={() => this.props.parent.start()}>
           To Top
         </Button>
-        {!this.props.parent.props.parent.state.wayfindingEnabled
-          ? <Button variant='outline-primary' onClick={() => this.enableWayfinding()}>Enable Wayfinding</Button>
-          : <Button variant='outline-primary' onClick={() => this.disableWayfinding()}>Disable Wayfinding</Button>
-        }
         <Button variant='outline-primary' onClick={() => this.show()}>
           {this.props.parent.props.parent.state.wayfindingEnabled
-            ? 'Wayfinding Map'
-            : 'List of Locations'}
-          </Button>
+            ? 'Dynamic List'
+            : 'Static List'}
+        </Button>
+        {!this.props.parent.props.parent.state.wayfindingEnabled
+          ? <Button variant='outline-primary' onClick={() => this.enableWayfinding()}>Enable Guide</Button>
+          : <Button variant='outline-primary' onClick={() => this.disableWayfinding()}>Disable Guide</Button>
+        }
       </div>
     );
   }

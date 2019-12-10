@@ -7,7 +7,7 @@ import '../css/components.css';
 export default class LocationList extends Component {
   openTour (location) {
     window.sessionStorage.setItem('visited', 'true');
-    window.location.pathname = location;
+    window.location.search = location;
   }
 
   renderList () {
