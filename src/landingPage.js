@@ -16,7 +16,7 @@ export default class LandingPage extends Component {
   render() {
     return (
       <div id='landingPage'>
-        <Button variant='outline-secondary' className='button' onClick={() => { this.openTour() }}>
+        <Button variant='outline-secondary' className='button' onClick={() => this.openTour()}>
           <p>Tour</p>
         </Button>
         <Button variant='outline-secondary' className='button' href='/defend'>

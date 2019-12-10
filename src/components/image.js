@@ -26,10 +26,24 @@ export default class Image extends Component {
 
   onOpen () {
     this.setState({ isOpen: true });
+    document.getElementById(this.props.id).classList.add('fullscreen');
+
+    for (let child of document.getElementById(this.props.id).childNodes) {
+      if (child.tagName === 'IMG' && child.width > child.height + 50) {
+        document.getElementById(this.props.id).classList.add('rotate');
+      }
+    }
   }
 
   onClose () {
     this.setState({ isOpen: false });
+    document.getElementById(this.props.id).classList.remove('fullscreen');
+
+    for (let child of document.getElementById(this.props.id).childNodes) {
+      if (child.tagName === 'IMG' && child.width > child.height + 50) {
+        document.getElementById(this.props.id).classList.remove('rotate');
+      }
+    }
   }
 
   render () {

@@ -1,15 +1,19 @@
-.image > .fullscreen, .panorama > .fullscreen, .text > .fullscreen, .video > .fullscreen, .audio > .fullscreen  {
+.image > .fullscreen, .panorama > .fullscreen, .text > .fullscreen,
+.video > .fullscreen, .audio > .fullscreen  {
   display: flex;
   position: fixed;
   top: 0;
+  margin: 0 auto;
+  max-height: 100%;
   width: 25rem;
   height: 100%;
   flex-direction: column;
-  justify-content:center;
-  align-items: left;
+  justify-content: center;
+  align-items: flex-start;
   color: #ffffff;
   background-color: #2f2f2f;
   z-index: 10;
+  transition: 0.5s;
 }
 
 .elementPadding {
@@ -24,19 +28,54 @@
   position: absolute;
 }
 
+.audio > div > h1, .image > div > h1 {
+  right: 0;
+  font-size: 1.5em;
+}
+
 .image, .panorama, .text, .video, .audio  {
   display: flex;
-  height: 40rem;
-  align-items: center;
+  margin-top: 1em;
+  height: 12rem;
+  justify-content: space-between;
+  align-items: flex-start;
   background: #afafaf;
-  border: 1px solid;
+  outline: 1px solid black;
+}
+
+.image > div {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: flex-start;
+  align-items: flex-start;
 }
 
 .image > div > img {
+  margin: auto;
+  max-width: 17rem;
+  max-height: 10rem;
+  width: auto;
+  height: auto;
+  border: 1px solid;
+}
+
+.image > .fullscreen > img {
   max-width: 100%;
   max-height: 100%;
-  width: 25rem;
-  height: auto;
+}
+
+.image > .rotate {
+  justify-content: center;
+  align-items: center;
+}
+
+.image > .rotate > img {
+  margin: 0;
+  max-width: 100vh;
+  max-height: 25rem;
+  transform: rotate(90deg);
+  transition: transform 0.5s;
 }
 
 .panorama > div {
@@ -51,29 +90,64 @@
 
 .panorama > .fullscreen > div {
   max-width: 25rem;
-  width: 25rem;
+  width: 10rem;
   overflow-y: hidden;
   overflow-x: scroll;
 }
 
 .text > div {
-  max-height: 28rem;
-  
+  margin: auto;
+  max-height: 12rem;
 }
 
 .text > div > p {
-  max-height: 18rem;
+  max-height: 8rem;
   overflow-y: hidden;
   white-space: pre-wrap;
 }
 
+.text > .fullscreen > p {
+  max-height: 100%;
+  overflow-y: hidden;
+  white-space: pre-wrap;
+}
+
+.video > div {
+  display: flex;
+  width: 100%;
+  height: 100%;
+}
+
 .video > div > iframe {
+  margin: auto;
+  width: 18rem;
+  height: 10rem;
+}
+
+.video > .fullscreen > iframe {
+  margin: auto;
   width: 25rem;
-  height: 18rem;
+  height: 16rem;
+}
+
+.audio > p {
+  right: 0;
 }
 
 .audio > div {
   width: 100%;
+  height: 100%;
+}
+
+.audio > div {
+  outline: none;
+}
+
+.audio .video-js {
+  background-color: #c9c9c9;
+  margin: 0;
+  width: 25rem;
+  height: 9rem;
 }
 
 #locationList {
@@ -86,8 +160,22 @@
   background-color: #ffffff;
 }
 
+#wayfindingMap {
+  display: flex;
+  flex-direction: column;
+  margin: 0 auto;
+  width: 25rem;
+  height: 100%;
+  background-color: #ffffff;
+}
+
+#tourFooter {
+  display: flex;
+  justify-content: space-between;
+}
+
 @media only screen and (max-width: 30rem) {
-  .fullscreen, #locationList, #tourFooter {
+  .fullscreen, #locationList, #tourFooter, #wayfindingMap {
     max-width: 100vw;
     width: 100vw;
   }
@@ -101,7 +189,7 @@
     width: 100vw;
   }
   
-  .image > div > img {
+  .image > .fullscreen > img {
     width: 100vw;
   }
   
@@ -125,15 +213,24 @@
     width: 100vw;
   }
   
-  .link {
+  .video {
     width: 100vw;
   }
   
-  .link > div > iframe {
+  .video > .fullscreen > iframe {
     width: 100vw;
   }
   
   .audio {
     width: 100vw;
+  }
+
+  .audio .video-js {
+    width: 100vw;
+  }
+
+  .image > .rotate > img {
+    height: 100%;
+    width: auto;
   }
 }

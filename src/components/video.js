@@ -11,23 +11,27 @@ export default class Video extends Component {
     this.state = {
       isOpen: false
     };
+
+    this.player = null;
   }
 
-  renderContent () {
+  componentDidMount () {
     let videoId = this.props.src
       .match(/v=.*/gm)
       .toString()
       .replace('v=', '');
 
-    setTimeout(() => {
-      let player = new YTPlayer(`#player${this.props.id}`, {
-        width: '100%',
-        height: '100%'
-      });
+    this.player = new YTPlayer(`#player${this.props.id}`, {
+      width: '100%',
+      height: '100%'
+    });
 
-      player.load(videoId);
-      player.on('unstarted', () => { this.props.parent.loadElement() })
-    }, 5000);
+    this.player.load(videoId);
+    this.player.on('unstarted', () => this.props.parent.loadElement());
+  }
+
+  componentWillUnmount () {
+    this.player.destroy();
   }
 
   toggleOpen () {
@@ -40,18 +44,19 @@ export default class Video extends Component {
 
   onOpen () {
     this.setState({ isOpen: true });
+    document.getElementById(this.props.id).classList.add('fullscreen');
   }
 
   onClose () {
     this.setState({ isOpen: false });
+    document.getElementById(this.props.id).classList.remove('fullscreen');
   }
 
   render () {
     return (
-      <div id={`container${this.props.id}`} className='video'>
+      <div id={`container${this.props.id}`} className='video' onClick={() => this.toggleOpen()}>
         <div id={this.props.id}>
           <div id={`player${this.props.id}`} />
-          {this.renderContent()}
         </div>
         <div id={`padding${this.props.id}`} className='elementPadding' />
       </div>

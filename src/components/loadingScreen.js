@@ -8,7 +8,7 @@ export default class LoadingScreen extends Component {
     return (
       <div id='loadingScreen'>
         <div className='loader' />
-        <p>Loading... {this.props.text}</p>
+        <p>Loading... {this.props.percentLoaded}</p>
       </div>
     );
   }

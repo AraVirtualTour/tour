@@ -17,10 +17,9 @@ export default class Tour extends Component {
 
     this.state = {
       loaded: false,
-      loadText: 0,
+      percentLoaded: 0,
       locationContent: [],
       loadedContent: [],
-      isWayfindingEnabled: false,
       reachedBottom: false
     };
 
@@ -41,18 +40,9 @@ export default class Tour extends Component {
     window.sessionStorage.setItem('visited', 'false');
     document.getElementById('contentContainer').style.display = 'none';
 
-    if (JSON.parse(window.sessionStorage.getItem('wayfindingEnabled'))) {
-      this.setState({ isWayfindingEnabled: true });
-      console.log('DEBUG: Wayfinding on');
-    } else {
-      this.setState({ isWayfindingEnabled: false });
-    }
-
     fetch(`${this.props.backendHost}:${this.props.backendPort}/content/${this.currentLocation}/${this.currentLocation}.json`)
       .then(response => response.text())
-      .then(text => this.setState({ locationContent: JSON.parse(text).content }, () => {
-        this.generateContent();
-      })
+      .then(text => this.setState({ locationContent: JSON.parse(text).content }, () => this.generateContent())
     );
     
     Events.scrollEvent.register('end', () => this.stopScroll());
@@ -78,7 +68,7 @@ export default class Tour extends Component {
 
       if (file['src'].includes('jpg') || file['src'].includes('png')) {
         generatedContent.push(
-          file['src'].includes('_pano')
+          file['src'].includes('_pano') || file['src'].includes('_panorama') 
             ? <Panorama ref={(ref) => { this.childReferences[parseInt(id)] = ref; return true; }} parent={this} key={id}
               id={id} required={isRequired} src={source} title={title} alt={title} />
             : <Image ref={(ref) => { this.childReferences[parseInt(id)] = ref; return true; }} parent={this} key={id}
@@ -118,7 +108,7 @@ export default class Tour extends Component {
   loadElement () {
     this.loadedItemsCount += 1;
 
-    this.setState({ loadText: `${Math.ceil((this.loadedItemsCount / this.state.loadedContent.length) * 100)}%` }, () => {
+    this.setState({ percentLoaded: `${Math.ceil((this.loadedItemsCount / this.state.loadedContent.length) * 100)}%` }, () => {
       if (this.loadedItemsCount === this.state.loadedContent.length) {
         this.load();
       }
@@ -133,37 +123,42 @@ export default class Tour extends Component {
       if (file.src.includes('vtt')) continue;
 
       let elementContainer = document.getElementById(`container${file.id}`);
+
       if (file.required) {
         this.fullscreenScrollScenes.push(
-          
           new ScrollMagic.Scene({ triggerElement: elementContainer, triggerHook: 0,
                                   duration: elementContainer.getBoundingClientRect().height })
-            // .setClassToggle(element, 'fullscreen')
             .addTo(this.scrollController)
-            .on('enter', () => { this.handleOpenElement(file) })
-            .on('leave', () => {  this.handleCloseElement(file)})
+            .on('enter', () => this.handleOpenElement(file))
+            .on('leave', () => this.handleCloseElement(file))
         );
       }
       
       this.scrollPoints.push({ y: elementContainer.getBoundingClientRect().bottom, time: file.time * 1000 });
     }
-    
+    this.start();
+  }
+
+  start () {
+    this.currentScrollPoint = 0;
+    this.setState({ reachedBottom: false });
+    this.isAutoScrolling = true;
     window.scrollBy(0, document.getElementById('root').getBoundingClientRect().top);
     this.startScroll();
   }
 
   handleOpenElement (element) {
-    console.log(element.id)
-    // if (element.required) {
-
-    // }
-    // this.childReferences[parseInt(element.id)].onOpen()
-    console.log('opened');
+    if (this.isAutoScrolling) {
+      this.childReferences[parseInt(element.id)].onOpen()    
+      console.log(element.id, 'opened');
+    }
   }
 
   handleCloseElement (element) {
-    // this.childReferences[parseInt(elementId)].onClose()
-    console.log('closed');
+    if (this.isAutoScrolling) {
+      this.childReferences[parseInt(element.id)].onClose()
+      console.log(element.id, 'closed');
+    }
   }
 
   handleScroll () {
@@ -171,11 +166,14 @@ export default class Tour extends Component {
       if (this.isAutoScrolling) {
         scene.enabled(true);
       } else {
-        var elements = document.getElementsByClassName('fullscreen');
-
-        for (let element of elements) {
+        for (let element of document.getElementsByClassName('fullscreen')) {
           element.classList.remove('fullscreen');
         }
+
+        for (let element of document.getElementsByClassName('rotate')) {
+          element.classList.remove('rotate');
+        }
+
         scene.enabled(false);
       }
     }
@@ -193,7 +191,7 @@ export default class Tour extends Component {
       
       this.isAutoScrolling = true;
       scroll.scrollTo(y, {
-        duration: 1000,//time !== 0 ? time : 10000,
+        duration: time !== 0 ? time : 10000,
         delay: 1000,
         smooth: 'linear',
         isDynamic: true
@@ -206,6 +204,20 @@ export default class Tour extends Component {
 
     if (window.scrollY + window.innerHeight === document.getElementById('tour').getBoundingClientRect().height) {
       this.setState({ reachedBottom: true });
+      this.isAutoScrolling = false;
+
+      for (let scene of this.fullscreenScrollScenes) {
+        scene.enabled(false);
+      }
+
+      for (let element of document.getElementsByClassName('fullscreen')) {
+        element.classList.remove('fullscreen');
+      }
+
+      for (let element of document.getElementsByClassName('rotate')) {
+        element.classList.remove('rotate');
+      }
+
       return;
     }
     
@@ -239,12 +251,12 @@ export default class Tour extends Component {
     return (
       <div id='tour'>
         {!this.state.loaded
-          ? <LoadingScreen text={this.state.loadText
-            ? this.state.loadText
+          ? <LoadingScreen percentLoaded={this.state.percentLoaded
+            ? this.state.percentLoaded
             : null} />
           : null
         }
-        <div id='contentContainer' className='content'>
+        <div id='contentContainer'>
           <h1 key='locationHeader'>{this.currentLocation}</h1>
           {this.state.loadedContent}
         </div>

@@ -1,7 +1,3 @@
-.content {
-  width: 100%;
-}
-
 #tour {
   display: flex;
   flex-direction: column;

@@ -26,10 +26,12 @@ export default class Panorama extends Component {
 
   onOpen () {
     this.setState({ isOpen: true });
+    document.getElementById(this.props.id).classList.add('fullscreen');
   }
 
   onClose () {
     this.setState({ isOpen: false });
+    document.getElementById(this.props.id).classList.remove('fullscreen');
   }
   
   render () {

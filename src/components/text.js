@@ -22,17 +22,27 @@ export default class Text extends Component {
     this.props.parent.loadElement();
   }
 
+  toggleOpen () {
+    if (this.state.isOpen) {
+      this.onClose();
+    } else {
+      this.onOpen();
+    }
+  }
+
   onOpen () {
     this.setState({ isOpen: true });
+    document.getElementById(this.props.id).classList.add('fullscreen');
   }
 
   onClose () {
     this.setState({ isOpen: false });
+    document.getElementById(this.props.id).classList.remove('fullscreen');
   }
 
   render () {
     return (
-      <div id={`container${this.props.id}`} className='text'>
+      <div id={`container${this.props.id}`} className='text' onClick={() => this.toggleOpen()}>
         <div id={this.props.id}>
           {this.props.title
             ? <h1>{this.props.title}</h1>

@@ -15,7 +15,7 @@ export default class LocationList extends Component {
 
     for (let location of this.props.locationsData) {
       renderedContent.push(
-        <Button key={location.name} onClick={() => { this.openTour(location.name) }}>
+        <Button key={location.name} onClick={() => this.openTour(location.name)}>
           {location.name}
         </Button>
       );

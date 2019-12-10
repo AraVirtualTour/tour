@@ -17,8 +17,10 @@ export default class Audio extends Component {
     this.state = {
       isOpen: false
     };
+  }
 
-    this.textTracks = [{
+  componentDidMount () {
+    let textTracks = [{
       kind: 'subtitles',
       srclang: 'en',
       label: 'English',
@@ -27,34 +29,32 @@ export default class Audio extends Component {
       default: true
     }];
 
-    this.options = {
+    let options = {
       controls: true,
-      fluid: true,
+      autoplay: false,
+      fluid: false,
       loop: false,
       plugins: {
         wavesurfer: {
           src: this.props.src,
           msDisplayMax: 10,
           debug: false,
-          waveColor: '#086280',
-          progressColor: 'black',
-          cursorColor: 'black',
-          hideScrollbar: true
+          waveColor: "red",
+          progressColor: "black",
+          cursorColor: "black",
+          hideScrollbar: true,
         }
       },
       controlBar: {
         fullscreenToggle: false
       }
     };
-
-    if (this.props.subtitleSrc) this.options.tracks = this.textTracks;
+    if (this.props.subtitleSrc) options.tracks = textTracks;
     this.props.parent.loadElement();
-  }
 
-  componentDidMount () {
-    this.player = videojs(`audio${this.props.id}`, this.options);
+    this.player = videojs(`audio${this.props.id}`, options);
     
-    this.player.on('waveReady', () => { this.props.parent.loadElement() });
+    this.player.on('waveReady', () => this.props.parent.loadElement());
   }
 
   componentWillUnmount () {
@@ -73,17 +73,19 @@ export default class Audio extends Component {
 
   onOpen () {
     this.setState({ isOpen: true });
+    document.getElementById(this.props.id).classList.add('fullscreen');
     this.player.wavesurfer().play();
   }
 
   onClose () {
     this.setState({ isOpen: false });
+    document.getElementById(this.props.id).classList.remove('fullscreen');
     this.player.wavesurfer().pause();
   }
 
   render () {
     return (
-      <div id={`container${this.props.id}`} className='audio'>
+      <div id={`container${this.props.id}`} className='audio' onClick={() => this.toggleOpen()}>
         <div id={this.props.id}>
           {this.props.title
             ? <h1>{this.props.title}</h1>
