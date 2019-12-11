@@ -24,7 +24,7 @@ export default class Tour extends Component {
     };
 
     this.loadedItemsCount = 0;
-    this.currentLocation = window.location.search.substring(1);
+    this.currentLocation = window.location.pathname.substring(1);
     this.currentScrollPoint = 0;
     this.scrollPoints = [];
     this.isAutoScrolling = true;

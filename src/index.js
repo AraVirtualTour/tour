@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
-// import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Route } from 'react-router-dom';
 
 import LandingPage from './landingPage';
 import { LocationList, Wayfinding } from './components';
@@ -42,21 +42,21 @@ class Index extends Component {
             this.setState({ wayfindingEnabled: false });
           }
         } else {
-          if (window.location.search.substring(1)) {
+          if (window.location.pathname.substring(1)) {
             let foundLocation = false;
 
             window.sessionStorage.setItem('wayfindingEnabled', 'true');
             this.setState({ wayfindingEnabled: true });
 
             for (let location of this.state.locations) {
-              if (window.location.search.includes(location.name) || window.location.search.includes('defend')) {
+              if (window.location.pathname.includes(location.name) || window.location.pathname.includes('defend')) {
                 foundLocation = true;
                 break;
               }
             }
 
             if (!foundLocation) {
-              window.location.search = '';
+              window.location.pathname = '';
             }
           } else {
             window.sessionStorage.setItem('wayfindingEnabled', 'false');
@@ -74,24 +74,28 @@ class Index extends Component {
 
   render() {
     return (
-      <div id='index'>
-        {!this.state.showLocations && !this.state.showTour && !this.state.showWayfinding
-          ? <LandingPage parent={this} locationsData={this.state.locations} />
-          : null
-        }
-        {this.state.showLocations
-          ? <LocationList parent={this} locationsData={this.state.locations} />
-          : null
-        }
-        {this.state.showTour
-          ? <Tour parent={this} backendHost={backendHost} backendPort={backendPort} />
-          : null
-        }
-        {this.state.showWayfinding
-          ? <Wayfinding parent={this} routeData={this.state.routes} />
-          : null
-        }
-      </div>
+        <Router>
+          <Route path='/**'>
+            <div id='index'>
+              {!this.state.showLocations && !this.state.showTour && !this.state.showWayfinding
+                ? <LandingPage parent={this} locationsData={this.state.locations} />
+                : null
+              }
+              {this.state.showLocations
+                ? <LocationList parent={this} locationsData={this.state.locations} />
+                : null
+              }
+              {this.state.showTour
+                ? <Tour parent={this} backendHost={backendHost} backendPort={backendPort} />
+                : null
+              }
+              {this.state.showWayfinding
+                ? <Wayfinding parent={this} routeData={this.state.routes} />
+                : null
+              }
+            </div>
+          </Route>
+        </Router>
     );
   }
 }

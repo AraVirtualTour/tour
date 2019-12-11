@@ -18,18 +18,33 @@ export default class Wayfinding extends Component {
   }
 
   openInstructions (route) {
-    console.log(route.endLocation)
     this.setState({ showInstructions: true, location: route.endLocation, route: route });
   }
 
-  renderList () {   
+  renderList () {
+    let routes = [];
     let locations = [];
+    let totalDistance = 0;
 
     for (let data of this.props.routeData) {
-      if (data.startLocation === window.location.search.substring(1)) {
+      if (data.startLocation === window.location.pathname.substring(1)) {
+        routes.push(data);
+      }
+    }
+
+    for (let route of routes) {
+      if (totalDistance === 0) totalDistance = route.totalDistance;
+
+      if (route.totalDistance < totalDistance) {
+        totalDistance = route.totalDistance;
+      }
+    }
+
+    for (let route of routes) {
+      if (totalDistance === route.totalDistance) {
         locations.push(
-          <Button key={`${data.startLocation}-${data.endLocation}`} onClick={() => this.openInstructions(data)}>
-            {data.endLocation}
+          <Button key={`${route.startLocation}-${route.endLocation}`} onClick={() => this.openInstructions(route)}>
+            {route.endLocation}
           </Button>
         );
       }
@@ -39,7 +54,6 @@ export default class Wayfinding extends Component {
   }
 
   render () {
-    console.log(this.props.routeData)
     return (
       <div id='wayfindingMap'>
         {this.state.showInstructions

@@ -6,11 +6,15 @@ import './css/landingPage.css';
 
 export default class LandingPage extends Component {
   openTour () {
-    if (window.location.search.substring(1)) {
+    if (window.location.pathname.substring(1)) {
       this.props.parent.setState({showTour: true});
     } else {
       this.props.parent.setState({showLocations: true});
     }
+  }
+
+  openGame () {
+    window.location.pathname = '/defend/';
   }
 
   render() {
@@ -19,7 +23,7 @@ export default class LandingPage extends Component {
         <Button variant='outline-secondary' className='button' onClick={() => this.openTour()}>
           <p>Tour</p>
         </Button>
-        <Button variant='outline-secondary' className='button' href='/defend'>
+        <Button variant='outline-secondary' className='button' onClick={() => this.openGame()}>
           <p>Game</p>
         </Button>
       </div>
