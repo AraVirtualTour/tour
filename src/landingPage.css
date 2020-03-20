@@ -1,22 +1,21 @@
-.App {
-  text-align: center;
+html, body, #root, .LandingPage, .button {
+    height: 100%;
 }
 
-.App-logo {
-  height: 40vmin;
+.LandingPage, .tour {
+    display: flex;
 }
 
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
+.tour {
+    height: 50%;
 }
 
-.App-link {
-  color: #09d3ac;
+.LandingPage {
+    flex-direction: column;
+}
+
+.button {
+    width: 100%;
+    text-align: center;
+    vertical-align: middle;
 }
