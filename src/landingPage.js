@@ -1,18 +1,32 @@
-import React from 'react';
+import React, { Component } from 'react';
 import Button from 'react-bootstrap/Button';
-import './landingPage.css';
 
-class LandingPage extends React.Component {
-  render () {
+import './css/landingPage.css';
+
+
+export default class LandingPage extends Component {
+  openTour () {
+    if (window.location.pathname.substring(1)) {
+      this.props.parent.setState({showTour: true});
+    } else {
+      this.props.parent.setState({showLocations: true});
+    }
+  }
+
+  openGame () {
+    window.location.pathname = '/defend/';
+  }
+
+  render() {
     return (
-      <div className="LandingPage">
-        <div className="tour">
-          <Button variant="outline-primary" className="button" href="/tour">Tour</Button>
-          <Button variant="outline-primary" className="button" href="/wayfinding">Wayfinding</Button>
-        </div>
-        <Button variant="outline-primary" className="button">Game</Button>
+      <div id='landingPage'>
+        <Button variant='outline-secondary' className='button' onClick={() => this.openTour()}>
+          <p>Tour</p>
+        </Button>
+        <Button variant='outline-secondary' className='button' onClick={() => this.openGame()}>
+          <p>Game</p>
+        </Button>
       </div>
     );
   }
 }
-export default LandingPage;
